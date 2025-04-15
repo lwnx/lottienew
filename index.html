@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lottie 动画工具</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      background: #f7fafd;
+      font-family: 'Inter', 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+      color: #222;
+    }
+    #app {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 0;
+    }
+    .main-card {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 6px 32px 0 rgba(80,120,200,0.10);
+      padding: 36px 36px 30px 36px;
+      min-width: 600px;
+      max-width: 950px;
+      width: 100%;
+      margin: 48px auto 0 auto;
+      display: flex;
+      flex-direction: row;
+      gap: 48px;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    .main-left, .main-right {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+    .section-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #2454e6;
+      letter-spacing: 0.4px;
+      margin-bottom: 18px;
+      text-align: left;
+    }
+    .uploader {
+      background: #f9fbff;
+      border-radius: 14px;
+      box-shadow: 0 2px 8px 0 #e4e8f1;
+      padding: 32px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 0;
+    }
+    .upload-area {
+      border: 2px dashed #b1c6f7;
+      border-radius: 12px;
+      background: #f6f9fe;
+      padding: 38px 0;
+      width: 100%;
+      text-align: center;
+      transition: border-color 0.2s;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .upload-tip {
+      font-size: 19px;
+      color: #2454e6;
+      font-weight: 600;
+      margin-bottom: 7px;
+      letter-spacing: 0.1em;
+    }
+    .upload-btn {
+      background: linear-gradient(90deg,#2454e6 60%,#5e9eff 100%);
+      color: #fff;
+      padding: 10px 30px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 1px 4px rgba(45,91,227,0.08);
+      transition: background 0.18s, box-shadow 0.18s;
+      outline: none;
+    }
+    .upload-btn:hover {
+      background: #1946a2;
+      box-shadow: 0 4px 16px rgba(45,91,227,0.10);
+    }
+    .file-info {
+      font-size: 13px;
+      color: #2454e6;
+      font-weight: 500;
+      word-break: break-all;
+      margin-top: 2px;
+    }
+    .config-panel {
+      background: #f5f8ff;
+      border-radius: 10px;
+      padding: 14px 16px 10px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 0px;
+      box-shadow: 0 1px 4px rgba(45,91,227,0.04);
+    }
+    .config-row.config-grid {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      align-items: center;
+      gap: 0 8px;
+      margin-bottom: 8px;
+    }
+    .config-label {
+      font-size: 14px;
+      color: #3956a3;
+      font-weight: 600;
+      text-align: right;
+      padding-right: 6px;
+      min-width: 60px;
+      line-height: 32px;
+      letter-spacing: 0.05em;
+    }
+    .input-group {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .config-row input[type=number], .config-row input[type=text] {
+      width: 60px;
+      padding: 5px 8px;
+      font-size: 15px;
+      border: 1px solid #d1e1fa;
+      border-radius: 6px;
+      outline: none;
+      background: #fff;
+      transition: border 0.2s;
+      font-family: inherit;
+    }
+    .config-row input[type=number]:focus, .config-row input[type=text]:focus {
+      border-color: #2454e6;
+    }
+    .config-row input[type=color] {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border: none;
+      background: none;
+      cursor: pointer;
+    }
+    .anim-card {
+      background: #f9fbff;
+      border-radius: 14px;
+      box-shadow: 0 2px 10px rgba(45,91,227,0.06);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 22px 10px 14px 10px;
+      margin-top: 0;
+      margin-bottom: 0;
+      min-height: 220px;
+      position: relative;
+    }
+    .lottie-container {
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 1px 8px 0 #e4e8f1;
+      padding: 0;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 90px;
+      height: 340px;
+      overflow: hidden;
+    }
+    .empty-text {
+      color: #b0b6c7;
+      font-size: 15px;
+      text-align: center;
+      margin-top: 6px;
+      letter-spacing: 0.2px;
+    }
+    .anim-info {
+      font-size: 13px;
+      color: #2454e6;
+      margin-top: 12px;
+      margin-bottom: 0;
+      text-align: center;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+    }
+    .json-editor-panel {
+      margin-top: 18px;
+      background: #f5f8ff;
+      border-radius: 10px;
+      padding: 16px 14px 10px 14px;
+      box-shadow: 0 1px 6px rgba(45,91,227,0.06);
+    }
+    .json-param-row {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 6px 0 #e4e8f1;
+      margin-bottom: 7px;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      transition: box-shadow 0.18s, background 0.18s;
+      font-size: 14px;
+      font-family: inherit;
+      position: relative;
+    }
+    .json-param-row:hover {
+      background: #f2f6ff;
+      box-shadow: 0 2px 8px 0 #d0d8f7;
+    }
+    .json-param-row.deleted {
+      opacity: 0.5;
+      background: #f3f3f3;
+    }
+    .json-param-key {
+      color: #2454e6;
+      font-weight: 600;
+      min-width: 70px;
+      margin-right: 12px;
+      font-size: 14px;
+      letter-spacing: 0.03em;
+    }
+    .json-param-value {
+      color: #444;
+      font-family: 'JetBrains Mono', 'Fira Mono', monospace;
+      font-size: 14px;
+      max-width: 220px;
+      overflow: auto;
+      word-break: break-all;
+    }
+    .btn-delete, .btn-restore {
+      margin-left: 12px;
+      border: none;
+      border-radius: 7px;
+      padding: 5px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.18s, transform 0.15s, color 0.18s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      box-shadow: none;
+      outline: none;
+    }
+    .btn-delete {
+      background: linear-gradient(90deg,#e34d59 60%,#ffbdbd 100%);
+      color: #fff;
+    }
+    .btn-delete:hover {
+      background: #c62839;
+      color: #fff;
+      transform: scale(1.07);
+    }
+    .btn-restore {
+      background: linear-gradient(90deg,#41c97a 60%,#b8f6d1 100%);
+      color: #fff;
+    }
+    .btn-restore:hover {
+      background: #249a5a;
+      color: #fff;
+      transform: scale(1.07);
+    }
+    .btn-download, .btn-restore-all {
+      font-size: 15px;
+      font-weight: 700;
+      padding: 9px 24px;
+      margin-bottom: 18px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+      outline: none;
+    }
+    .btn-download {
+      background: linear-gradient(90deg,#2454e6 60%,#5e9eff 100%);
+      color: #fff;
+      margin-right: 18px;
+      box-shadow: 0 1px 4px rgba(45,91,227,0.08);
+    }
+    .btn-download:hover {
+      background: #1946a2;
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(45,91,227,0.10);
+    }
+    .btn-restore-all {
+      background: linear-gradient(90deg,#2454e6 60%,#5e9eff 100%);
+      color: #fff;
+      margin-left: 0;
+      margin-right: 0;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 9px 24px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+      outline: none;
+      box-shadow: 0 1px 4px rgba(45,91,227,0.08);
+    }
+    .btn-restore-all:disabled {
+      background: #f3f3f3;
+      color: #b0b6c7;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    .btn-restore-all:not(:disabled):hover {
+      background: #1946a2;
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(45,91,227,0.10);
+    }
+    .deleted-tip {
+      color: #b0b6c7;
+      font-size: 12px;
+      margin-left: 10px;
+    }
+  </style>
+  <!-- Vue 3 & Lottie-web CDN -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.10.2/lottie.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <div class="main-card">
+      <div class="main-left">
+        <!-- <div class="section-title">Lottie 动画工具</div> -->
+        <div class="uploader">
+          <div class="upload-area" @dragover.prevent="dragOver=true" @dragleave.prevent="dragOver=false" @drop.prevent="onDrop" :class="{dragover: dragOver}" @click="triggerUpload">
+            <input type="file" accept="application/json" @change="onFileChange" style="display:none" ref="uploadInput" />
+            <span class="upload-tip">上传 Lottie JSON 文件</span>
+            <button class="upload-btn" type="button">选择文件</button>
+          </div>
+        </div>
+        <div class="config-panel">
+          <div class="config-row config-grid">
+            <div class="config-label">画布尺寸</div>
+            <div class="input-group">
+              <input type="number" v-model.number="canvasWidth" min="1" placeholder="宽" /> ×
+              <input type="number" v-model.number="canvasHeight" min="1" placeholder="高" /> px
+            </div>
+          </div>
+          <div class="config-row config-grid">
+            <div class="config-label">动画尺寸</div>
+            <div class="input-group">
+              <input type="number" v-model.number="lottieWidth" min="1" placeholder="宽" /> ×
+              <input type="number" v-model.number="lottieHeight" min="1" placeholder="高" /> px
+            </div>
+          </div>
+          <!-- <div class="config-row config-grid">
+            <div class="config-label">X 坐标</div>
+            <div class="input-group">
+              <input type="number" v-model.number="lottieOffsetX" style="width:60px;" /> px
+            </div>
+          </div>
+          <div class="config-row config-grid">
+            <div class="config-label">Y 坐标</div>
+            <div class="input-group">
+              <input type="number" v-model.number="lottieOffsetY" style="width:60px;" /> px
+            </div>
+          </div> -->
+          <div class="config-row config-grid">
+            <div class="config-label">背景颜色</div>
+            <div class="input-group">
+              <input type="color" v-model="canvasBgColor" style="width:32px;height:32px;padding:0;border:none;background:none;cursor:pointer;" />
+              <input type="text" v-model="canvasBgColor" style="width:80px;margin-left:6px;font-size:13px;" maxlength="9" />
+            </div>
+          </div>
+          <div class="config-row config-grid">
+            <div class="config-label">循环播放</div>
+            <div class="input-group">
+              <label style="display:flex;align-items:center;gap:4px;font-size:13px;">
+                <input type="checkbox" v-model="lottieLoop" style="width:16px;height:16px;" /> 启用
+              </label>
+            </div>
+          </div>
+          <!-- <div class="config-row config-grid">
+            <div class="config-label">播放次数</div>
+            <div class="input-group">
+              <input type="number" v-model.number="lottiePlayCount" min="1" :disabled="lottieLoop" style="width:60px;" />
+              <span style="font-size:13px;color:#888;margin-left:6px;">{{ lottieLoop ? '无限' : '次' }}</span>
+            </div>
+          </div> -->
+        </div>
+        <div v-if="uploadedJson" class="json-editor-panel">
+          <button @click="downloadEditedJson" class="btn-download">下载Lottie文件</button>
+          <button @click="restoreAllDeleted" class="btn-restore-all" :disabled="!hasDeletedParams">撤回全部</button>
+          <div style="font-weight:600;color:#2d5be3;margin-bottom:8px;font-size:15px;">Lottie参数查看/编辑</div>
+          <json-tree-editor :data="uploadedJson" :backup="deletedJsonBackup" :path="[]" @delete="handleTreeDelete" @restore="handleTreeRestore" />
+        </div>
+      </div>
+      <div class="main-right">
+        <div class="anim-card">
+          <div class="lottie-container" ref="lottieRef" :style="containerStyle">
+          </div>
+          <div v-if="uploadedJson" class="anim-info">
+            动画尺寸：{{ lottieWidth }} × {{ lottieHeight }} px
+          </div>
+          <div v-else class="empty-text">请上传Lottie动画</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="text/x-template" id="json-tree-editor">
+    <div>
+      <div v-for="key in allKeys"
+           :key="key"
+           :class="['json-param-row', isDeleted(key) ? 'deleted' : '']"
+           :style="{marginLeft: (path.length * 16) + 'px'}">
+        <span v-if="isExpandable(getValue(key))" @click="toggle(key)" class="icon-btn" style="cursor:pointer;user-select:none;">
+          <span v-if="!expandedKeys[key]">&#9654;</span><span v-else>&#9660;</span>
+        </span>
+        <span v-else style="display:inline-block;width:16px;"></span>
+        <span class="json-param-key">{{ Array.isArray(data) ? '['+key+']' : key }}</span>
+        <span v-if="typeof getValue(key) === 'object' && getValue(key) !== null">{...}</span>
+        <span v-else class="json-param-value">{{ getValue(key) }}</span>
+        <button v-if="!isDeleted(key)" @click="$emit('delete', [...path, Array.isArray(data) ? Number(key) : key])" class="btn-delete">删除</button>
+        <button v-else @click="$emit('restore', [...path, Array.isArray(data) ? Number(key) : key])" class="btn-restore">撤回</button>
+        <span v-if="isDeleted(key)" class="deleted-tip">已删除</span>
+      </div>
+      <template v-for="key in allKeys">
+        <json-tree-editor v-if="isExpandable(getValue(key)) && expandedKeys[key]" :data="getValue(key)" :backup="backup" :path="[...path, Array.isArray(data) ? Number(key) : key]" @delete="$emit('delete', $event)" @restore="$emit('restore', $event)" />
+      </template>
+    </div>
+  </script>
+  <script>
+    const { onMounted, ref, computed, watch } = Vue;
+    const App = {
+      setup() {
+        const lottieRef = ref(null);
+        const lottieInner = ref(null);
+        let lottieInstance = null;
+        const uploadInput = ref(null);
+        const dragOver = ref(false);
+        const defaultPath = null; // 不再自动播放默认动画
+        const canvasWidth = ref(375);
+        const canvasHeight = ref(375);
+        const lottieWidth = ref(375);
+        const lottieHeight = ref(375);
+        const canvasBgColor = ref('#ffffff');
+        const lottieLoop = ref(true);
+        const lottiePlayCount = ref(1);
+        const lottieOffsetX = ref(0);
+        const lottieOffsetY = ref(0);
+        let playCounter = 0;
+        const uploadedJson = ref(null); // 确保是ref
+        const deletedJsonBackup = ref({});
+        const uploadedFileName = ref('lottie.json');
+        function setCanvas(w, h) {
+          canvasWidth.value = w;
+          canvasHeight.value = h;
+        }
+        function destroyLottie() {
+          if (lottieInstance) {
+            lottieInstance.destroy();
+            lottieInstance = null;
+          }
+        }
+        function onDrop(e) {
+          dragOver.value = false;
+          const file = e.dataTransfer.files[0];
+          if (file) handleFile(file);
+        }
+        function triggerUpload() {
+          uploadInput.value && uploadInput.value.click();
+        }
+        function onFileChange(e) {
+          const file = e.target.files[0];
+          if (!file) return;
+          handleFile(file);
+        }
+        function handleFile(file) {
+          uploadedFileName.value = file.name.replace(/\.json$/i, '') || 'lottie';
+          const reader = new FileReader();
+          reader.onload = function(event) {
+            try {
+              uploadedJson.value = JSON.parse(event.target.result);
+              loadLottie(uploadedJson.value);
+            } catch (err) {
+              alert('文件解析失败，请上传有效的Lottie JSON文件');
+            }
+          };
+          reader.readAsText(file);
+        }
+        function updateLottieSVGSize() {
+          const target = lottieRef.value.querySelector('svg');
+          if (target) {
+            target.setAttribute('width', lottieWidth.value + 'px');
+            target.setAttribute('height', lottieHeight.value + 'px');
+            target.style.width = lottieWidth.value + 'px';
+            target.style.height = lottieHeight.value + 'px';
+            target.style.display = 'block';
+            target.style.margin = 'auto';
+            target.style.position = 'relative';
+            target.style.left = '0';
+            target.style.right = '0';
+            target.style.top = '0';
+            target.style.bottom = '0';
+            target.style.transform = `translate(${lottieOffsetX.value}px, ${lottieOffsetY.value}px)`;
+          }
+        }
+        watch([lottieWidth, lottieHeight], () => {
+          updateLottieSVGSize();
+        });
+        watch([lottieOffsetX, lottieOffsetY], ([x, y]) => {
+          const svg = lottieRef.value.querySelector('svg');
+          if (svg) {
+            svg.style.transform = `translate(${x}px, ${y}px)`;
+          }
+        });
+        function loadLottie(animationDataOrPath) {
+          destroyLottie();
+          playCounter = 0;
+          if (!animationDataOrPath) return;
+          lottieInstance = lottie.loadAnimation({
+            container: lottieRef.value,
+            renderer: 'svg',
+            loop: lottieLoop.value,
+            autoplay: true,
+            animationData: typeof animationDataOrPath === 'object' ? animationDataOrPath : undefined,
+            path: typeof animationDataOrPath === 'string' ? animationDataOrPath : undefined
+          });
+          lottieInstance.addEventListener('DOMLoaded', updateLottieSVGSize);
+          if (!lottieLoop.value && lottiePlayCount.value > 1) {
+            lottieInstance.addEventListener('complete', handlePlayComplete);
+          }
+        }
+        function handlePlayComplete() {
+          playCounter++;
+          if (playCounter < lottiePlayCount.value) {
+            lottieInstance.goToAndPlay(0, true);
+          } else {
+            lottieInstance.removeEventListener('complete', handlePlayComplete);
+          }
+        }
+        watch([lottieLoop, lottiePlayCount], ([newLoop, newCount], [oldLoop, oldCount]) => {
+          if (uploadedJson.value) {
+            loadLottie(uploadedJson.value);
+          }
+        });
+        onMounted(() => {
+          // 默认不播放动画，等待用户上传
+        });
+        const containerStyle = computed(() => ({
+          width: (canvasWidth.value || 375) + 'px',
+          height: (canvasHeight.value || 812) + 'px',
+          maxWidth: '100%',
+          maxHeight: '100%',
+          background: canvasBgColor.value
+        }));
+        const lottieStyle = computed(() => ({
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '100%',
+          height: '100%',
+          pointerEvents: 'none',
+          transform: `translate(${lottieOffsetX.value}px, ${lottieOffsetY.value}px)`
+        }));
+        const allJsonKeys = computed(() => {
+          const keys = new Set([
+            ...Object.keys(uploadedJson.value || {}),
+            ...Object.keys(deletedJsonBackup.value || {})
+          ]);
+          return Array.from(keys);
+        });
+        function getJsonValue(key) {
+          if (uploadedJson.value && Object.prototype.hasOwnProperty.call(uploadedJson.value, key)) {
+            return uploadedJson.value[key];
+          }
+          if (deletedJsonBackup.value && Object.prototype.hasOwnProperty.call(deletedJsonBackup.value, key)) {
+            return deletedJsonBackup.value[key];
+          }
+          return '';
+        }
+        function hasJsonKey(key) {
+          return uploadedJson.value && Object.prototype.hasOwnProperty.call(uploadedJson.value, key);
+        }
+        function hasBackupKey(key) {
+          return deletedJsonBackup.value && Object.prototype.hasOwnProperty.call(deletedJsonBackup.value, key);
+        }
+        function removeJsonKey(key) {
+          if (uploadedJson.value && Object.prototype.hasOwnProperty.call(uploadedJson.value, key)) {
+            // 备份原始值
+            deletedJsonBackup.value[key] = uploadedJson.value[key];
+            // 用新对象触发响应式
+            const copy = { ...uploadedJson.value };
+            delete copy[key];
+            uploadedJson.value = copy;
+            loadLottie(uploadedJson.value);
+          }
+        }
+        function restoreJsonKey(key) {
+          if (hasBackupKey(key) && !hasJsonKey(key)) {
+            uploadedJson.value = { ...uploadedJson.value, [key]: deletedJsonBackup.value[key] };
+            loadLottie(uploadedJson.value);
+          }
+        }
+        function downloadEditedJson() {
+          if (!uploadedJson.value) return;
+          const blob = new Blob([JSON.stringify(uploadedJson.value, null, 2)], { type: 'application/json' });
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = uploadedFileName.value.replace(/\.json$/i, '') + '_edited.json';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        }
+        function makePathKey(pathArr) {
+          // 统一全部转字符串，避免数字/字符串混用导致key不一致
+          return pathArr.map(k => String(k)).join('.');
+        }
+        function handleTreeDelete(path) {
+          let obj = uploadedJson.value;
+          let parent = null;
+          let lastKey = null;
+          for (let i = 0; i < path.length; i++) {
+            parent = obj;
+            lastKey = path[i];
+            obj = obj[lastKey];
+          }
+          const backupKey = makePathKey(path);
+          deletedJsonBackup.value[backupKey] = JSON.parse(JSON.stringify(parent[lastKey]));
+          if (Array.isArray(parent)) {
+            parent.splice(Number(lastKey), 1);
+          } else {
+            delete parent[lastKey];
+          }
+          uploadedJson.value = JSON.parse(JSON.stringify(uploadedJson.value));
+          loadLottie(uploadedJson.value);
+        }
+        function handleTreeRestore(path) {
+          let obj = uploadedJson.value;
+          let parent = obj;
+          for (let i = 0; i < path.length - 1; i++) {
+            if (typeof path[i+1] === 'number' && !Array.isArray(parent[path[i]])) parent[path[i]] = [];
+            if (typeof path[i+1] !== 'number' && typeof parent[path[i]] !== 'object') parent[path[i]] = {};
+            parent = parent[path[i]];
+          }
+          const lastKey = path[path.length - 1];
+          const backupKey = makePathKey(path);
+          if (Array.isArray(parent)) {
+            parent.splice(Number(lastKey), 0, JSON.parse(JSON.stringify(deletedJsonBackup.value[backupKey])));
+          } else {
+            parent[lastKey] = JSON.parse(JSON.stringify(deletedJsonBackup.value[backupKey]));
+          }
+          uploadedJson.value = JSON.parse(JSON.stringify(uploadedJson.value));
+          loadLottie(uploadedJson.value);
+        }
+        const hasDeletedParams = computed(() => {
+          if (!uploadedJson.value || !deletedJsonBackup.value) return false;
+          return Object.keys(deletedJsonBackup.value).some(key => {
+            const pathArr = key.split('.').map(x => isNaN(Number(x)) ? x : Number(x));
+            let obj = uploadedJson.value;
+            let parent = obj;
+            for (let i = 0; i < pathArr.length - 1; i++) {
+              parent = obj;
+              obj = obj?.[pathArr[i]];
+              if (obj === undefined || obj === null) return true;
+            }
+            const lastKey = pathArr[pathArr.length - 1];
+            if (Array.isArray(parent)) {
+              return typeof parent[lastKey] === 'undefined';
+            } else {
+              return !Object.prototype.hasOwnProperty.call(parent, lastKey);
+            }
+          });
+        });
+        function restoreAllDeleted() {
+          if (!deletedJsonBackup.value) return;
+          Object.keys(deletedJsonBackup.value).forEach(key => {
+            const pathArr = key.split('.').map(x => isNaN(Number(x)) ? x : Number(x));
+            // 复用 handleTreeRestore 逻辑
+            handleTreeRestore(pathArr);
+          });
+        }
+        return {
+          lottieRef,
+          lottieInner,
+          uploadInput,
+          dragOver,
+          triggerUpload,
+          onDrop,
+          onFileChange,
+          canvasWidth,
+          canvasHeight,
+          lottieWidth,
+          lottieHeight,
+          canvasBgColor,
+          lottieLoop,
+          lottiePlayCount,
+          lottieOffsetX,
+          lottieOffsetY,
+          containerStyle,
+          lottieStyle,
+          setCanvas,
+          uploadedJson,
+          uploadedFileName,
+          loadLottie,
+          removeJsonKey,
+          restoreJsonKey,
+          allJsonKeys,
+          getJsonValue,
+          hasJsonKey,
+          hasBackupKey,
+          downloadEditedJson,
+          handleTreeDelete,
+          handleTreeRestore,
+          makePathKey,
+          hasDeletedParams,
+          restoreAllDeleted
+        };
+      }
+    };
+    Vue.createApp(App).component('json-tree-editor', {
+      template: '#json-tree-editor',
+      props: ['data', 'backup', 'path'],
+      data() {
+        return {
+          expandedKeys: {}
+        };
+      },
+      computed: {
+        filteredData() {
+          const HIDDEN_KEYS = ['v', 'fr', 'ip', 'op', 'w', 'h', 'nm', 'ddd'];
+          if (this.path.length === 0 && this.data && typeof this.data === 'object' && !Array.isArray(this.data)) {
+            const filtered = {};
+            for (const k in this.data) {
+              if (!HIDDEN_KEYS.includes(k)) filtered[k] = this.data[k];
+            }
+            return filtered;
+          }
+          return this.data;
+        },
+        allKeys() {
+          let keys, backupKeys, deleted;
+          if (Array.isArray(this.filteredData)) {
+            keys = this.filteredData.map((_, idx) => idx);
+            const basePath = this.path.map(k => String(k)).join('.');
+            backupKeys = Object.keys(this.backup || {})
+              .filter(k => {
+                if (!basePath) return /^\d+$/.test(k);
+                return k.startsWith(basePath + '.') && /^\d+$/.test(k.split('.').slice(-1)[0]);
+              })
+              .map(k => Number(k.split('.').slice(-1)[0]));
+            deleted = Array.from(new Set(backupKeys)).filter(
+              k => typeof this.filteredData[k] === 'undefined'
+            );
+          } else {
+            keys = Object.keys(this.filteredData || {});
+            backupKeys = Object.keys(this.backup || {}).map(k => {
+              const arr = k.split('.');
+              return arr[arr.length - 1];
+            });
+            deleted = Array.from(new Set(backupKeys)).filter(
+              k => !(this.filteredData && Object.prototype.hasOwnProperty.call(this.filteredData, k))
+            );
+          }
+          return [...keys, ...deleted];
+        }
+      },
+      methods: {
+        makePathKey(pathArr) {
+          return pathArr.map(k => String(k)).join('.');
+        },
+        isExpandable(val) {
+          return typeof val === 'object' && val !== null && Object.keys(val).length > 0;
+        },
+        toggle(key) {
+          this.$set ? this.$set(this.expandedKeys, key, !this.expandedKeys[key]) : (this.expandedKeys[key] = !this.expandedKeys[key]);
+        },
+        isDeleted(key) {
+          const pathKey = this.makePathKey([...this.path, Array.isArray(this.data) ? Number(key) : key]);
+          if (Array.isArray(this.filteredData)) {
+            return (typeof this.filteredData[key] === 'undefined') && this.backup && this.backup[pathKey];
+          } else {
+            return !(this.filteredData && Object.prototype.hasOwnProperty.call(this.filteredData, key)) && this.backup && this.backup[pathKey];
+          }
+        },
+        getValue(key) {
+          const pathKey = this.makePathKey([...this.path, Array.isArray(this.data) ? Number(key) : key]);
+          if (Array.isArray(this.filteredData)) {
+            if (typeof this.filteredData[key] !== 'undefined') return this.filteredData[key];
+          } else if (this.filteredData && Object.prototype.hasOwnProperty.call(this.filteredData, key)) {
+            return this.filteredData[key];
+          }
+          if (this.backup && this.backup[pathKey]) {
+            return this.backup[pathKey];
+          }
+          return undefined;
+        },
+        rowStyle(key) {
+          return this.isDeleted(key)
+            ? { opacity: 0.6, background: '#f7f7f7', marginLeft: (this.path.length * 16) + 'px', display: 'flex', alignItems: 'center', marginBottom: '4px' }
+            : { marginLeft: (this.path.length * 16) + 'px', display: 'flex', alignItems: 'center', marginBottom: '4px' };
+        }
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
