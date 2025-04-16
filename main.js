@@ -390,7 +390,8 @@ faqItems.forEach(item => {
   if (downloadBtn) {
     downloadBtn.addEventListener('click', function() {
       if (!lottieData) return;
-      const blob = new Blob([JSON.stringify(lottieData, null, 2)], {type: 'application/json'});
+      // 导出为紧凑格式，减小体积
+      const blob = new Blob([JSON.stringify(lottieData)], {type: 'application/json'});
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
       a.download = 'edited_lottie.json';
