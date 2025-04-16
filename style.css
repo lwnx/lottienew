@@ -443,6 +443,12 @@ body {
   padding: 12px 0 12px 0;
   margin-top: 0px;
 }
+.footer-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
 .footer-content {
   max-width: 1080px;
   margin: 0 auto;
@@ -471,6 +477,17 @@ body {
 .footer-link:hover {
   color: var(--primary-accent);
   opacity: 1;
+}
+.beian-link {
+  color: #aaa;
+  font-size: 0.85rem;
+  margin-top: 2px;
+  text-decoration: none;
+  transition: color 0.18s;
+}
+.beian-link:hover {
+  color: #7157ff;
+  text-decoration: underline;
 }
 /* .footer-copy {
   color: #aaa;
